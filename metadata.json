@@ -1,0 +1,6 @@
+{
+  "name": "INFO Institute of Engineering - College Management System",
+  "description": "Modern College Management Web Application for INFO Institute of Engineering, Coimbatore with role-based portals for HOD, Class Advisers, and Students.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

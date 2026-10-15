@@ -1,0 +1,113 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Common security helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isHOD() {
+      return isSignedIn() && (
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().role == 'hod') ||
+        request.auth.token.email == 'hod.cse@infoengg.edu.in'
+      );
+    }
+
+    function isAdviser() {
+      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().role == 'adviser';
+    }
+
+    function isStudent() {
+      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().role == 'student';
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow get: if isSignedIn() && (request.auth.uid == userId || isHOD());
+      allow list: if isHOD();
+      allow create: if isHOD() || (isSignedIn() && request.auth.uid == userId && request.resource.data.role == 'student');
+      allow update: if isHOD() || (isSignedIn() && request.auth.uid == userId && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']));
+      allow delete: if isHOD();
+    }
+
+    // Students Collection
+    match /students/{studentId} {
+      allow get: if isSignedIn() && (request.auth.uid == studentId || isHOD() || isAdviser());
+      allow list: if isSignedIn();
+      allow create, update, delete: if isHOD() || isAdviser();
+    }
+
+    // Advisers Collection
+    match /advisers/{adviserId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isHOD();
+    }
+
+    // Attendance Collection
+    match /attendance/{attendanceId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isHOD() || isAdviser();
+    }
+
+    // Internal Marks Collection
+    match /internalMarks/{markId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isHOD() || isAdviser();
+    }
+
+    // Leave Requests Collection
+    match /leaveRequests/{requestId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && (request.resource.data.studentId == request.auth.uid || isHOD() || isAdviser());
+      allow update: if isHOD() || isAdviser() || (isSignedIn() && resource.data.studentId == request.auth.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reason', 'startDate', 'endDate', 'leaveType']));
+      allow delete: if isHOD();
+    }
+
+    // Announcements Collection
+    match /announcements/{announcementId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isHOD() || isAdviser();
+    }
+
+    // Assignments Collection
+    match /assignments/{assignmentId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isHOD() || isAdviser();
+    }
+
+    // Messages Collection
+    match /messages/{messageId} {
+      allow get, list: if isSignedIn() && (
+        resource.data.studentId == request.auth.uid ||
+        resource.data.adviserId == request.auth.uid ||
+        isHOD()
+      );
+      allow create: if isSignedIn() && (
+        request.resource.data.studentId == request.auth.uid ||
+        request.resource.data.adviserId == request.auth.uid ||
+        isHOD()
+      );
+      allow update, delete: if isHOD();
+    }
+
+    // Special Events Collection
+    match /specialEvents/{eventId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isHOD() || isAdviser();
+    }
+  }
+}

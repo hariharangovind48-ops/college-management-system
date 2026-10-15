@@ -1,0 +1,212 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User account with role-based access information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 128 },
+        "displayName": { "type": "string", "maxLength": 100 },
+        "role": { "type": "string", "enum": ["hod", "adviser", "student"] },
+        "department": { "type": "string", "maxLength": 60 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "email", "role", "displayName"]
+    },
+    "Student": {
+      "title": "Student",
+      "description": "Student academic profile and credentials",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "rollNo": { "type": "string", "maxLength": 20, "pattern": "^[a-zA-Z0-9]+$" },
+        "registerNo": { "type": "string", "maxLength": 20, "pattern": "^[a-zA-Z0-9]+$" },
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 128 },
+        "department": { "type": "string", "maxLength": 60 },
+        "classId": { "type": "string", "maxLength": 50 },
+        "section": { "type": "string", "maxLength": 10 },
+        "semester": { "type": "string", "maxLength": 10 },
+        "batch": { "type": "string", "maxLength": 20 },
+        "cgpa": { "type": "string", "maxLength": 10 },
+        "adviserId": { "type": "string", "maxLength": 128 },
+        "adviserName": { "type": "string", "maxLength": 100 },
+        "phone": { "type": "string", "maxLength": 20 }
+      },
+      "required": ["rollNo", "name", "email", "department", "classId"]
+    },
+    "Adviser": {
+      "title": "Adviser",
+      "description": "Class adviser faculty profile",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "facultyId": { "type": "string", "maxLength": 30 },
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 128 },
+        "department": { "type": "string", "maxLength": 60 },
+        "assignedClassId": { "type": "string", "maxLength": 50 },
+        "assignedClassName": { "type": "string", "maxLength": 100 },
+        "cabin": { "type": "string", "maxLength": 50 },
+        "phone": { "type": "string", "maxLength": 20 },
+        "officeHours": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["facultyId", "name", "email", "assignedClassId"]
+    },
+    "Attendance": {
+      "title": "Attendance",
+      "description": "Daily student attendance record",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string", "maxLength": 128 },
+        "studentRollNo": { "type": "string", "maxLength": 20 },
+        "classId": { "type": "string", "maxLength": 50 },
+        "date": { "type": "string", "maxLength": 20 },
+        "status": { "type": "string", "enum": ["present", "absent", "od", "leave"] },
+        "markedBy": { "type": "string", "maxLength": 128 },
+        "notes": { "type": "string", "maxLength": 200 }
+      },
+      "required": ["studentId", "classId", "date", "status"]
+    },
+    "InternalMarks": {
+      "title": "InternalMarks",
+      "description": "Internal assessment and exam score record",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string", "maxLength": 128 },
+        "studentRollNo": { "type": "string", "maxLength": 20 },
+        "classId": { "type": "string", "maxLength": 50 },
+        "subjectCode": { "type": "string", "maxLength": 20 },
+        "subjectName": { "type": "string", "maxLength": 100 },
+        "examType": { "type": "string", "enum": ["CIA-1", "CIA-2", "Model Exam", "Lab Assessment"] },
+        "maxMarks": { "type": "string", "maxLength": 10 },
+        "scoredMarks": { "type": "string", "maxLength": 10 },
+        "semester": { "type": "string", "maxLength": 10 }
+      },
+      "required": ["studentId", "classId", "subjectCode", "examType", "scoredMarks"]
+    },
+    "LeaveRequest": {
+      "title": "LeaveRequest",
+      "description": "Student formal leave or on-duty request",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string", "maxLength": 128 },
+        "studentName": { "type": "string", "maxLength": 100 },
+        "rollNo": { "type": "string", "maxLength": 20 },
+        "classId": { "type": "string", "maxLength": 50 },
+        "startDate": { "type": "string", "maxLength": 20 },
+        "endDate": { "type": "string", "maxLength": 20 },
+        "leaveType": { "type": "string", "enum": ["Medical", "Casual", "On-Duty", "Family Event"] },
+        "reason": { "type": "string", "maxLength": 500 },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "adviserComment": { "type": "string", "maxLength": 300 },
+        "appliedAt": { "type": "string" }
+      },
+      "required": ["studentId", "classId", "startDate", "endDate", "leaveType", "reason", "status"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "Official institutional or departmental notice",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 150 },
+        "content": { "type": "string", "maxLength": 2000 },
+        "targetRole": { "type": "string", "enum": ["all", "students", "advisers"] },
+        "classId": { "type": "string", "maxLength": 50 },
+        "authorName": { "type": "string", "maxLength": 100 },
+        "authorRole": { "type": "string", "enum": ["hod", "adviser"] },
+        "priority": { "type": "string", "enum": ["urgent", "high", "normal"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["title", "content", "targetRole", "authorName", "priority"]
+    },
+    "Assignment": {
+      "title": "Assignment",
+      "description": "Class assignment and submission criteria",
+      "type": "object",
+      "properties": {
+        "classId": { "type": "string", "maxLength": 50 },
+        "subjectCode": { "type": "string", "maxLength": 20 },
+        "subjectName": { "type": "string", "maxLength": 100 },
+        "title": { "type": "string", "maxLength": 150 },
+        "description": { "type": "string", "maxLength": 1500 },
+        "dueDate": { "type": "string", "maxLength": 30 },
+        "totalPoints": { "type": "string", "maxLength": 10 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["classId", "subjectCode", "title", "dueDate"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Adviser to student communication log",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string", "maxLength": 128 },
+        "adviserId": { "type": "string", "maxLength": 128 },
+        "senderRole": { "type": "string", "enum": ["adviser", "student"] },
+        "senderName": { "type": "string", "maxLength": 100 },
+        "message": { "type": "string", "maxLength": 1000 },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["studentId", "adviserId", "senderRole", "message"]
+    },
+    "SpecialEvent": {
+      "title": "SpecialEvent",
+      "description": "College technical symposium or workshop event",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 150 },
+        "description": { "type": "string", "maxLength": 1000 },
+        "category": { "type": "string", "maxLength": 50 },
+        "eventDate": { "type": "string", "maxLength": 50 },
+        "venue": { "type": "string", "maxLength": 100 },
+        "registrationDeadline": { "type": "string", "maxLength": 50 },
+        "maxSeats": { "type": "string", "maxLength": 10 }
+      },
+      "required": ["title", "category", "eventDate", "venue"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User security and authorization records"
+    },
+    "/students/{studentId}": {
+      "schema": "Student",
+      "description": "Student profiles and academic information"
+    },
+    "/advisers/{adviserId}": {
+      "schema": "Adviser",
+      "description": "Adviser faculty profiles and class mappings"
+    },
+    "/attendance/{attendanceId}": {
+      "schema": "Attendance",
+      "description": "Class session attendance records"
+    },
+    "/internalMarks/{markId}": {
+      "schema": "InternalMarks",
+      "description": "CIA and semester exam performance metrics"
+    },
+    "/leaveRequests/{requestId}": {
+      "schema": "LeaveRequest",
+      "description": "Student leave applications and approval statuses"
+    },
+    "/announcements/{announcementId}": {
+      "schema": "Announcement",
+      "description": "College and departmental broadcast notices"
+    },
+    "/assignments/{assignmentId}": {
+      "schema": "Assignment",
+      "description": "Academic course assignments"
+    },
+    "/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Direct student-adviser academic consultation messages"
+    },
+    "/specialEvents/{eventId}": {
+      "schema": "SpecialEvent",
+      "description": "College symposiums, hackathons and technical events"
+    }
+  }
+}
